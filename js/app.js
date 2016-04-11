@@ -2,11 +2,11 @@ $(document).ready(function(){
 
   // Create Wine Manager Instance
   var wineManager = {
-    wineUrl : 'https://myapi.profstream.com/api/9cb263', // Wine URL
+    wineUrl : 'https://myapi.profstream.com/api/9cb263/wines', // Wine URL
     showWines : function(){ // Display wines
       $.ajax({
         type : "GET",
-        url : this.wineUrl + "/wines",
+        url : this.wineUrl,
         success : function(wines){
           $(".wine").remove();
           wines.forEach(function(wine){
@@ -24,7 +24,7 @@ $(document).ready(function(){
       var item = this;
       $.ajax({
         type : "POST",
-        url : this.wineUrl + "/wines",
+        url : this.wineUrl,
         data : {
           name : $("#add-form #name").val(),
           year : $("#add-form #year").val(),
@@ -50,7 +50,7 @@ $(document).ready(function(){
     updateFormField : function(id){ // Update form fields
       $.ajax({
         type : "GET",
-        url : this.wineUrl + "/wines/" + id,
+        url : this.wineUrl + "/" + id,
         success : function(wine){
           $(".modal-title").html("Edit " + wine.name);
           $("#edit-form #name").val(wine.name);
@@ -61,6 +61,7 @@ $(document).ready(function(){
           $("#edit-form #description").val(wine.description);
           $("#edit-form #picture").val(wine.picture);
           $("#edit-form #price").val(wine.price);
+          $("#edit-form").attr("data-id", wine.id);
 
         },
         error : function () {
@@ -73,7 +74,7 @@ $(document).ready(function(){
       var item = this;
       $.ajax({
         type : "PUT",
-        url : this.wineUrl + "/wines/" + id,
+        url : this.wineUrl + "/" + id,
         data : {
           name : $("#edit-form #name").val(),
           year : $("#edit-form #year").val(),
@@ -99,7 +100,7 @@ $(document).ready(function(){
       var item = this;
       $.ajax({
         type : "DELETE",
-        url : this.wineUrl + "/wines/" + id,
+        url : this.wineUrl + "/" + id,
         success : function(wine){
           item.showWines();
         },
@@ -120,19 +121,21 @@ $(document).ready(function(){
     wineManager.addWine();
   });
 
-  // Edit Wine
+  // Update Wine Fields & Open Modal
   $(document).on("click", ".edit", function(e){
     e.preventDefault();
     var id = parseInt($(this).attr("data-id"));
-
     wineManager.updateFormField(id);
-    // Edit existing wine
-    $("#edit-form").on("submit", function(e){
-      e.preventDefault();
-      wineManager.updateWine(id);
-
-    });
   });
+
+  // Edit existing wine & update
+  $("#edit-form").on("submit", function(e){
+    e.preventDefault();
+    var id = parseInt($(this).attr("data-id"));
+    wineManager.updateWine(id);
+
+  });
+
   // Delete wine
   $(document).on("click", ".delete", function(e){
     var id = parseInt($(this).attr("data-id"));
